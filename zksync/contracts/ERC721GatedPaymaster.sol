@@ -10,7 +10,7 @@ import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} from "@
 import {IPaymasterFlow} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymasterFlow.sol";
 import {TransactionHelper, Transaction} from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol";
 
-/// @author Matter Labs
+/// @author Matter Labs, edited for hackathon
 /// @notice This smart contract pays the gas fees on behalf of users that are the owner of a specific NFT asset
 contract ERC721GatedPaymaster is IPaymaster, Ownable {
     IERC721 private immutable nft_asset;
@@ -61,6 +61,7 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         
             uint256 requiredETH = _transaction.gasLimit *
                 _transaction.maxFeePerGas;
+
         
             (bool success, ) = payable(BOOTLOADER_FORMAL_ADDRESS).call{
                 value: requiredETH
@@ -86,6 +87,49 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         (bool success, ) = _to.call{value: balance}("");
         require(success, "Failed to withdraw funds from paymaster.");
     }
+
+ function validateServerSignature(
+    bytes32 _emailHash,
+    bytes calldata serverSignature
+) external pure returns (bool) {
+    require(serverSignature.length == 65, "Invalid signature length");
+
+    bytes32 r;
+    bytes32 s;
+    uint8 v;
+
+    // Use calldatacopy to get the data from serverSignature
+    bytes32[2] memory signatureWords;
+
+    assembly {
+        calldatacopy(
+            signatureWords,
+            add(serverSignature.offset, 32),
+            64
+        )
+    }
+
+    r = signatureWords[0];
+    s = signatureWords[1];
+
+    // For v, we need to grab only the relevant byte.
+    bytes memory vByte = new bytes(1);
+
+    assembly {
+        calldatacopy(
+            vByte,
+            add(serverSignature.offset, 96),
+            1
+        )
+    }
+    
+    v = uint8(vByte[0]);
+
+    address signer = ecrecover(_emailHash, v, r, s);
+    address backendServerAddress = 0x8DabF51501196a7700c97616bD82791cF31Ac685;
+
+    return signer == backendServerAddress;
+}
 
     receive() external payable {}
 }

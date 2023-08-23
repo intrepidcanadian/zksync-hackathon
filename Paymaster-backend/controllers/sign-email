@@ -2,8 +2,8 @@ require('dotenv').config();
 const knex = require("knex")(require("../knexfile"));
 
 const SERVER_PRIVATE_KEY = process.env.SERVER_PRIVATE_KEY;
-const Web3 = require('web3').Web3;
-const web3 = new Web3();
+const Web3 = require('web3').default;
+const web3 = new Web3();  // Ensure you have an Ethereum provider configured
 
 async function checkEmailInDatabase(email) {
   try {
@@ -18,14 +18,14 @@ async function checkEmailInDatabase(email) {
 }
 
 const signEmails = async (req, res) => {
-
   try {
     const email = req.body.email;
     const isEmailValid = await checkEmailInDatabase(email);
 
     if (isEmailValid) {
-      const serverSignature = web3.eth.accounts.sign(email, SERVER_PRIVATE_KEY);
-      res.json({ serverSignature: serverSignature.signature });
+      const emailHash = web3.utils.keccak256(email); 
+      const serverSignature = web3.eth.accounts.sign(emailHash, SERVER_PRIVATE_KEY);  // Use emailHash instead of email
+      res.json({ serverSignature: serverSignature.signature, emailHash: emailHash });
     } else {
       res.status(400).send("Invalid email");
     }
@@ -34,7 +34,6 @@ const signEmails = async (req, res) => {
     res.status(500).send("An error occurred");
   }
 };
-
 
 module.exports = {
   signEmails
