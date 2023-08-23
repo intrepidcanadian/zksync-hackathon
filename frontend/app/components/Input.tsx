@@ -17,6 +17,8 @@ export default function Input({
   const [cost, setCost] = useState("");
   const [price, setPrice] = useState("");
   const [gas, setGas] = useState("");
+  
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (message !== "") {
@@ -33,7 +35,12 @@ export default function Input({
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(event.target.value);
+    const { name, value } = event.target;
+    if (name === "message") {
+      setMessage(value);
+    } else if (name === "email") {
+      setEmail(value);
+    }
   };
 
   async function getEstimate() {
@@ -68,6 +75,14 @@ export default function Input({
             placeholder="Enter Greeter message"
             onChange={handleInputChange}
           />
+                  {/* <input
+          type="email"
+          name="email"  // Add a name attribute
+          id="user-email"
+          className="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          placeholder="Enter your email"
+          onChange={handleInputChange}
+        /> */}
         </div>
         <button
           type="button"

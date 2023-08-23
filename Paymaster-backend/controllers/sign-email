@@ -8,8 +8,8 @@ const web3 = new Web3();  // Ensure you have an Ethereum provider configured
 async function checkEmailInDatabase(email) {
   try {
     const existingEmail = await knex("emails")
-    .where({ email })
-    .first();
+      .where({ email })
+      .first();
     return existingEmail !== undefined;
   } catch (error) {
     console.error('Error checking email in database:', error);
@@ -24,8 +24,20 @@ const signEmails = async (req, res) => {
 
     if (isEmailValid) {
       const emailHash = web3.utils.keccak256(email); 
-      const serverSignature = web3.eth.accounts.sign(emailHash, SERVER_PRIVATE_KEY);  // Use emailHash instead of email
-      res.json({ serverSignature: serverSignature.signature, emailHash: emailHash });
+
+      // Sign the emailHash with the SERVER_PRIVATE_KEY
+      const serverSignature = web3.eth.accounts.sign(emailHash, SERVER_PRIVATE_KEY);
+
+      // Recover the public key from the signature
+      const recoveredPubKey = web3.eth.accounts.recover(
+        emailHash,
+        serverSignature.signature
+      );
+
+      // Derive the Ethereum address from the recovered public key
+      const serverAddress = web3.utils.toChecksumAddress(recoveredPubKey);
+
+      res.json({ serverSignature: serverSignature.signature, emailHash: emailHash, serverAddress: serverAddress });
     } else {
       res.status(400).send("Invalid email");
     }
@@ -37,4 +49,6 @@ const signEmails = async (req, res) => {
 
 module.exports = {
   signEmails
-}
+};
+
+

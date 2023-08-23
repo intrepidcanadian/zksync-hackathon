@@ -31,5 +31,8 @@
     "nft": "yarn hardhat deploy-zksync --script deploy-ERC721.ts",
     "paymaster": "yarn hardhat deploy-zksync --script deploy-ERC721GatedPaymaster.ts",
     "compile": "yarn hardhat compile"
+  },
+  "dependencies": {
+    "@matterlabs/signature-checker": "^1.1.1"
   }
 }

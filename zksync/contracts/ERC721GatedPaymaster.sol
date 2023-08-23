@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
+import "@matterlabs/signature-checker/contracts/SignatureChecker.sol"; 
 
 import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol";
 import {IPaymasterFlow} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymasterFlow.sol";
@@ -14,6 +15,7 @@ import {TransactionHelper, Transaction} from "@matterlabs/zksync-contracts/l2/sy
 /// @notice This smart contract pays the gas fees on behalf of users that are the owner of a specific NFT asset
 contract ERC721GatedPaymaster is IPaymaster, Ownable {
     IERC721 private immutable nft_asset;
+    using SignatureChecker for address;
 
     modifier onlyBootloader() {
         require(
@@ -31,7 +33,7 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
     }
 
     // The gas fees will be paid for by the paymaster if the user is the owner of the required NFT asset.
-    function validateAndPayForPaymasterTransaction(
+          function validateAndPayForPaymasterTransaction(
         bytes32,
         bytes32,
         Transaction calldata _transaction
@@ -61,7 +63,6 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         
             uint256 requiredETH = _transaction.gasLimit *
                 _transaction.maxFeePerGas;
-
         
             (bool success, ) = payable(BOOTLOADER_FORMAL_ADDRESS).call{
                 value: requiredETH
@@ -70,6 +71,57 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
             revert("Invalid paymaster flow");
         }
     }
+
+    function validateServerSignatureAndPay(
+        bytes32 emailHash,
+        bytes memory serverSignature,
+        address serverAddress,
+        Transaction calldata _transaction
+    )
+        external
+        payable
+        onlyBootloader
+        returns (bytes4 magic, bytes memory context)
+    {
+        magic = PAYMASTER_VALIDATION_SUCCESS_MAGIC;
+        require(
+            _transaction.paymasterInput.length >= 4,
+            "The standard paymaster input must be at least 4 bytes long"
+        );
+        
+        bytes4 paymasterInputSelector = bytes4(
+            _transaction.paymasterInput[0:4]
+        );
+        
+        if (paymasterInputSelector == IPaymasterFlow.general.selector) {
+            bool isSignatureCorrect = verifyServerSignature(
+                emailHash,
+                serverSignature,
+                serverAddress
+            );
+
+            require(
+                isSignatureCorrect,
+                "User must provide a valid server signature"
+            );
+
+            if (isSignatureCorrect) {
+                uint256 requiredETH = _transaction.gasLimit *
+                    _transaction.maxFeePerGas;
+                
+                (bool success, ) = payable(BOOTLOADER_FORMAL_ADDRESS).call{
+                    value: requiredETH
+                }("");
+                
+                require(success, "Failed to pay for gas fees");
+            }
+        } else {
+            revert("Invalid paymaster flow");
+        }
+    }
+
+
+
 
     function postTransaction(
         bytes calldata _context,
@@ -88,48 +140,17 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         require(success, "Failed to withdraw funds from paymaster.");
     }
 
- function validateServerSignature(
-    bytes32 _emailHash,
-    bytes calldata serverSignature
-) external pure returns (bool) {
-    require(serverSignature.length == 65, "Invalid signature length");
-
-    bytes32 r;
-    bytes32 s;
-    uint8 v;
-
-    // Use calldatacopy to get the data from serverSignature
-    bytes32[2] memory signatureWords;
-
-    assembly {
-        calldatacopy(
-            signatureWords,
-            add(serverSignature.offset, 32),
-            64
-        )
+    function verifyServerSignature(
+        bytes32 emailHash,
+        bytes memory serverSignature,
+        address serverAddress
+    ) public view returns (bool) {
+        // Verify the signature using the provided address and hash
+        return serverAddress.isValidSignatureNow(
+            keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", emailHash)),
+            serverSignature
+        );
     }
-
-    r = signatureWords[0];
-    s = signatureWords[1];
-
-    // For v, we need to grab only the relevant byte.
-    bytes memory vByte = new bytes(1);
-
-    assembly {
-        calldatacopy(
-            vByte,
-            add(serverSignature.offset, 96),
-            1
-        )
-    }
-    
-    v = uint8(vByte[0]);
-
-    address signer = ecrecover(_emailHash, v, r, s);
-    address backendServerAddress = 0x8DabF51501196a7700c97616bD82791cF31Ac685;
-
-    return signer == backendServerAddress;
-}
 
     receive() external payable {}
 }

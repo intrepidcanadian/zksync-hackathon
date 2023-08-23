@@ -507,6 +507,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@matterlabs/hardhat-zksync-deploy@npm:^0.1.2":
+  version: 0.1.5
+  resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.1.5"
+  dependencies:
+    glob: ^7.1.3
+  peerDependencies:
+    ethers: ~5.5.4
+    hardhat: ^2.9.0
+    zksync-web3: ^0.3.5
+  checksum: 8ece2be9d7edae8ea7a82ac81ff43658c6bc86e8fffa44e4062be8bd84b8dc30336b694f70623f53914fa126791874cde0634efe8af34291e4b625a6affd9c97
+  languageName: node
+  linkType: hard
+
 "@matterlabs/hardhat-zksync-deploy@npm:^0.6.3":
   version: 0.6.3
   resolution: "@matterlabs/hardhat-zksync-deploy@npm:0.6.3"
@@ -530,6 +543,18 @@ __metadata:
   peerDependencies:
     hardhat: ^2.14.0
   checksum: 2b069bcad29381a8a007ccae36c51f36b62b667ab5623a6271639663c77976c5ff202cc3f28dd7b58f57b3c5d21a86a5e29c1a05fd13d9867203dfd08f61c554
+  languageName: node
+  linkType: hard
+
+"@matterlabs/hardhat-zksync-solc@npm:^0.2.1":
+  version: 0.2.4
+  resolution: "@matterlabs/hardhat-zksync-solc@npm:0.2.4"
+  dependencies:
+    "@nomiclabs/hardhat-docker": ^2.0.0
+    dockerode: ^3.3.1
+  peerDependencies:
+    hardhat: ^2.9.0
+  checksum: 9256681b52ff943f24b0ec1c98611ef035cb2462514a8e4817a5cbf3da1df4299614498ab80c173968020e0e9fc78036101fc53154a46c0b4537e302082b18ff
   languageName: node
   linkType: hard
 
@@ -559,6 +584,16 @@ __metadata:
   peerDependencies:
     "@nomicfoundation/hardhat-verify": ^1.0.2
   checksum: 7a2c731982966511b82df9110eded603177e0e055f2820d965bd6bb49281c80eff96f58e05860dac83cf6470fa9ef58e8ce3a176bd8220eb7d6160bf911ea926
+  languageName: node
+  linkType: hard
+
+"@matterlabs/signature-checker@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@matterlabs/signature-checker@npm:1.1.1"
+  dependencies:
+    "@matterlabs/hardhat-zksync-deploy": ^0.1.2
+    "@matterlabs/hardhat-zksync-solc": ^0.2.1
+  checksum: 8276bd7089934876c3e63ab3b27ddd6e70daf1102587fe35522d644aa913d3713739adf904f862ae190a026cad22beb89faa61695945d95e400c9898d3bd9334
   languageName: node
   linkType: hard
 
@@ -2140,7 +2175,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dockerode@npm:^3.3.4":
+"dockerode@npm:^3.3.1, dockerode@npm:^3.3.4":
   version: 3.3.5
   resolution: "dockerode@npm:3.3.5"
   dependencies:
@@ -5030,6 +5065,7 @@ __metadata:
     "@matterlabs/hardhat-zksync-deploy": ^0.6.3
     "@matterlabs/hardhat-zksync-solc": ^0.4.0
     "@matterlabs/hardhat-zksync-verify": ^0.2.0
+    "@matterlabs/signature-checker": ^1.1.1
     "@matterlabs/zksync-contracts": ^0.6.1
     "@nomicfoundation/hardhat-verify": ^1.0.3
     "@nomiclabs/hardhat-etherscan": ^3.1.7

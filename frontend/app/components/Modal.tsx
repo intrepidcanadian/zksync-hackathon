@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Checkout from "./Checkout";
@@ -15,6 +15,36 @@ export default function Modal({
   nfts,
 }: ModalProps) {
   const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    // Send email to backend when modal is opened
+    async function sendEmailToBackend() {
+      try {
+        const emailData = {
+          email: "tony.kp.lau@gmail.com", // Replace with the actual email from state
+        };
+
+        const response = await fetch("/api/sign-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(emailData),
+        });
+
+        if (response.ok) {
+          console.log("Email sent to backend successfully");
+        } else {
+          console.error("Error sending email to backend");
+        }
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
+    }
+
+    // Call the function to send email when modal is opened
+    sendEmailToBackend();
+  }, []); 
 
   return (
     <Transition.Root show={open} as={Fragment}>
