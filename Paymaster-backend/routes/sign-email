@@ -1,0 +1,14 @@
+const express = require("express");
+const router = express.Router();
+const sign = require("../controllers/sign-email");
+const cors = require("cors");
+
+// Enable CORS for all routes in this router
+router.use(cors());
+
+router
+  .route("/") 
+  .post(sign.signEmails)
+
+
+module.exports = router;

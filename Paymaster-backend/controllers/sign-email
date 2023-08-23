@@ -1,0 +1,41 @@
+require('dotenv').config();
+const knex = require("knex")(require("../knexfile"));
+
+const SERVER_PRIVATE_KEY = process.env.SERVER_PRIVATE_KEY;
+const Web3 = require('web3').Web3;
+const web3 = new Web3();
+
+async function checkEmailInDatabase(email) {
+  try {
+    const existingEmail = await knex("emails")
+    .where({ email })
+    .first();
+    return existingEmail !== undefined;
+  } catch (error) {
+    console.error('Error checking email in database:', error);
+    return false;
+  }
+}
+
+const signEmails = async (req, res) => {
+
+  try {
+    const email = req.body.email;
+    const isEmailValid = await checkEmailInDatabase(email);
+
+    if (isEmailValid) {
+      const serverSignature = web3.eth.accounts.sign(email, SERVER_PRIVATE_KEY);
+      res.json({ serverSignature: serverSignature.signature });
+    } else {
+      res.status(400).send("Invalid email");
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send("An error occurred");
+  }
+};
+
+
+module.exports = {
+  signEmails
+}

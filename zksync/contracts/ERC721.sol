@@ -43,10 +43,10 @@ contract InfinityStones is ERC721URIStorage, Ownable {
         baseURI = _baseURI;
     }
 
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        require(_exists(_tokenId), "ERC721URIStorage: URI query for nonexistent token");
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, "/", Strings.toString(_tokenId))) : "";
-    }
+function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+    require(_exists(_tokenId), "ERC721URIStorage: URI query for nonexistent token");
+    return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, "/", Strings.toString(_tokenId), ".json")) : "";
+}
 
     function tokensOfOwner(address owner) public view returns (uint256[] memory) {
         return _ownedTokens[owner];

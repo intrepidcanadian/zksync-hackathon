@@ -1,0 +1,69 @@
+require('dotenv').config(); 
+const knex = require("knex")(require("../knexfile"));
+
+// Get all Emails
+const getEmails = async (req, res) => {
+  try {
+    const emailData = await knex("emails")
+      .select(
+        "emails.id",
+        "emails.email",
+      )
+
+    res.status(200).json(emailData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const addEmails = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Validate email format
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        // Check if the email already exists in the database
+        const existingEmail = await knex("emails").where({ email }).first();
+        if (existingEmail) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+
+        // Insert the email into the 'emails' table
+        await knex("emails").insert({
+            email: email,
+        });
+
+        return res.status(201).json({ message: "Email added successfully", email: email });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// Function to validate email format
+function isValidEmail(email) {    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+const deleteEmails = async (req, res) => {
+    try {
+        const emailId = req.params.emailId;
+
+        await knex("emails").where("id", emailId).delete();
+
+        return res.status(204).json({ message: "Email deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+module.exports = {
+  getEmails, addEmails, deleteEmails
+}

@@ -1,0 +1,22 @@
+
+const express = require("express");
+const router = express.Router();
+const emailinfo = require("../controllers/emailinfo");
+const cors = require("cors");
+
+// Enable CORS for all routes in this router
+router.use(cors());
+
+router
+  .route("/") 
+  .get(emailinfo.getEmails)
+  .post(emailinfo.addEmails)
+
+
+router
+  .route("/:emailId") 
+  .delete(emailinfo.deleteEmails);
+
+
+
+module.exports = router;

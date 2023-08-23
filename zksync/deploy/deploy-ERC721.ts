@@ -64,7 +64,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // Update base URI
   let setBaseUriTransaction = await nftContract.setBaseURI(
-    "https://ipfs.io/ipfs/QmPtDtJEJDzxthbKmdgvYcLa9oNUUUkh7vvz5imJFPQdKx",
+    "https://ipfs.io/ipfs/Qmd7UnrQLGGXJbPGktPaMWtJNebnhWh6QbDaMocWkqZFP4",
   );
   await setBaseUriTransaction.wait();
   console.log(`New baseURI is ${await nftContract.baseURI()}`);
