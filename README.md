@@ -1,3 +1,7 @@
+# hackathon
+
+This project leverages the gated-nft-tutorial-starter for the zksync hackathon. The goal is to add a email verification to allow people on an email list to be eligible for gas-less transactions
+
 # gated-nft-tutorial-starter 💥🎉
 
 This repository serves as a starter template for developing a dApp that interacts with a 
