@@ -3,6 +3,8 @@ import Text from "./Text";
 import zkSyncImage from "../assets/zkSync_logo.png";
 import { CheckoutProps, GreeterData } from "../types/types";
 import usePaymaster from "../hooks/usePaymaster";
+import useVerification from "../hooks/useVerification"; // Renamed from verifyEmailSignature for consistency
+import { useState } from 'react';
 
 export default function Checkout({
   greeterInstance,
@@ -13,15 +15,44 @@ export default function Checkout({
   gas,
   nfts,
 }: CheckoutProps) {
+
+  const [email, setEmail] = useState("");
+  const handleEmailChange = (e) => setEmail(e.target.value);
+  
+  const { isVerified, setVerificationData } = useVerification();
   const hasNFT = nfts.length > 0;
+
+  const handleSubmitEmail = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/sign-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      const { emailHash, serverSignature, serverAddress } = data;
+      setVerificationData({ emailHash, serverSignature, serverAddress });
+      updateGreeting({ message });
+
+    } catch (error) {
+      console.error("Error submitting email:", error);
+    }
+  };
+
   const updateGreeting = async ({ message }: GreeterData) => {
     try {
       if (greeterInstance == null) {
         return;
       }
 
+      const shouldPayGas = hasNFT || isVerified ;
+      // || isVerified
+
       let txHandle;
-      if (hasNFT) {
+      if (shouldPayGas) {
         const params = await usePaymaster({ greeterInstance, message, price });
         txHandle = await greeterInstance.setGreeting(message, params);
       } else {
@@ -46,6 +77,10 @@ export default function Checkout({
           <h2 className="text-black text-center text-2xl mb-2 mt-4">
             Transaction Details
           </h2>
+          <div>
+            <input type="email" value={email} onChange={handleEmailChange} placeholder="Enter your email" />
+            <button onClick={handleSubmitEmail}>Submit Email</button>
+          </div>
           <div className="text-black text-center mb-2">
             <Text>
               The details of your transaction are displayed below for your

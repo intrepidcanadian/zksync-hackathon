@@ -16,39 +16,40 @@ export default function Modal({
 }: ModalProps) {
   const [open, setOpen] = useState(true);
 
-  useEffect(() => {
-    // Send email to backend when modal is opened
-    async function sendEmailToBackend() {
-      try {
-        const emailData = {
-          email: "tony.kp.lau@gmail.com", // Replace with the actual email from state
-        };
+  // useEffect(() => {
+  //   // Send email to backend when modal is opened
+  //   async function sendEmailToBackend() {
+  //     try {
+  //       const emailData = {
+  //         email: "tony.kp.lau@gmail.com", // Replace with the actual email from state
+  //       };
 
-        const response = await fetch("/api/sign-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(emailData),
-        });
+  //       const response = await fetch("/api/sign-email", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(emailData),
+  //       });
 
-        if (response.ok) {
-          console.log("Email sent to backend successfully");
-        } else {
-          console.error("Error sending email to backend");
-        }
-      } catch (error) {
-        console.error("Error sending email:", error);
-      }
-    }
+  //       if (response.ok) {
+  //         console.log("Email sent to backend successfully");
+  //       } else {
+  //         console.error("Error sending email to backend");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error sending email:", error);
+  //     }
+  //   }
 
-    // Call the function to send email when modal is opened
-    sendEmailToBackend();
-  }, []); 
+  //   // Call the function to send email when modal is opened
+  //   sendEmailToBackend();
+  // }, []); 
 
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={setOpen}>
+      <Dialog as="div" className="relative z-10" onClose={() => {}}>
+      {/* onClose={(setOpen)}> */}
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -77,7 +78,10 @@ export default function Modal({
                   <button
                     type="button"
                     className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={() => closeModal()}
+                    onClick={() => {              
+                      setOpen(false);
+                      closeModal();
+                    }}
                   >
                     <span className="sr-only">Close</span>
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />

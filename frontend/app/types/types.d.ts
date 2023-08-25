@@ -50,6 +50,12 @@ type PaymasterProps = {
   price: string;
 };
 
+type VerificationProps = {
+  serverSignature: string;
+  serverAddress: string;
+  emailHash: string;
+};
+
 export {
   InputProps,
   CheckoutProps,
@@ -58,4 +64,5 @@ export {
   PowerStoneNft,
   PowerStoneAttributes,
   PaymasterProps,
+  VerificationProps,
 };

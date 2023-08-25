@@ -121,8 +121,6 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
     }
 
 
-
-
     function postTransaction(
         bytes calldata _context,
         Transaction calldata _transaction,
