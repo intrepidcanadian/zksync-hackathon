@@ -56,10 +56,10 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         if (paymasterInputSelector == IPaymasterFlow.general.selector) {
             address userAddress = address(uint160(_transaction.from));
         
-            require(
-                nft_asset.balanceOf(userAddress) > 0,
-                "User does not hold the required NFT asset and therefore must pay for their own gas!"
-            );
+            // require(
+            //     nft_asset.balanceOf(userAddress) > 0,
+            //     "User does not hold the required NFT asset and therefore must pay for their own gas!"
+            // );
         
             uint256 requiredETH = _transaction.gasLimit *
                 _transaction.maxFeePerGas;
