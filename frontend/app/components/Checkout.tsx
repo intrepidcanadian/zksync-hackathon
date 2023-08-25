@@ -4,7 +4,7 @@ import zkSyncImage from "../assets/zkSync_logo.png";
 import { CheckoutProps, GreeterData } from "../types/types";
 import usePaymaster from "../hooks/usePaymaster";
 import useVerification from "../hooks/useVerification"; // Renamed from verifyEmailSignature for consistency
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Checkout({
   greeterInstance,
@@ -21,6 +21,13 @@ export default function Checkout({
   
   const { isVerified, setVerificationData } = useVerification();
   const hasNFT = nfts.length > 0;
+  
+  useEffect(() => {
+    // This effect runs when isVerified changes
+    if (isVerified) {
+      updateGreeting({ message });
+    }
+  }, [isVerified]);
 
   const handleSubmitEmail = async () => {
     try {
@@ -35,7 +42,14 @@ export default function Checkout({
       const data = await response.json();
       const { emailHash, serverSignature, serverAddress } = data;
       setVerificationData({ emailHash, serverSignature, serverAddress });
-      updateGreeting({ message });
+    // Fetch the updated isVerified value
+    // const updatedIsVerified = useVerification();
+
+    // // Update the greeting if isVerified is true
+    // if (updatedIsVerified) {
+    //   await updateGreeting({ message });
+    // }
+
 
     } catch (error) {
       console.error("Error submitting email:", error);
@@ -48,7 +62,7 @@ export default function Checkout({
         return;
       }
 
-      const shouldPayGas = hasNFT || isVerified ;
+      const shouldPayGas =  isVerified || hasNFT ;
       // || isVerified
 
       let txHandle;
@@ -65,6 +79,7 @@ export default function Checkout({
       // Update greeting
       const updatedGreeting = await greeterInstance.greet();
       setGreetingMessage(updatedGreeting);
+
     } catch (error) {
       console.error("Failed to update greeting: ", error);
     }

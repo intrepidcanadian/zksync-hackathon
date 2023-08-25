@@ -8,7 +8,8 @@ const usePaymaster = async ({
   message,
   price,
 }: PaymasterProps) => {
-  let gasPrice = ethers.utils.parseEther(price);
+  const priceString = typeof price === "number" ? price.toString() : price;
+  let gasPrice = ethers.utils.parseEther(priceString);
   const paymasterParams = utils.getPaymasterParams(PAYMASTER_CONTRACT_ADDRESS, {
     type: "General",
     innerInput: new Uint8Array(),
